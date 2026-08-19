@@ -22,7 +22,7 @@ jobs:
           git config user.email "luisdingww-bit@users.noreply.github.com"
           python3 streak.py
           STAMP=$(TZ=Asia/Shanghai date '+%Y-%m-%d %H:%M:%S %Z')
-          git add streak.md badge.json README.md
+          git add streak.md badge.json README.md s_stars.json s_followers.json s_repos.json s_streak.json
           git commit -m "daily check-in: $STAMP" || echo "no changes"
           git push
           DESC=$(python3 -c "import json;d=json.load(open('badge.json'));print(json.dumps({'description':'Daily GitHub check-in · 自动打卡 · 当前连续 '+d['message']}))")
