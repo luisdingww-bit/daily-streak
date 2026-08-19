@@ -1,0 +1,29 @@
+name: Daily Streak
+
+on:
+  schedule:
+    - cron: '0 16 * * *'   # 每天 00:00 北京时间 (UTC+8)
+  workflow_dispatch:       # 可手动触发测试
+
+jobs:
+  streak:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.PAT }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT }}
+
+      - name: Daily check-in
+        run: |
+          git config user.name "luisdingww-bit"
+          git config user.email "luisdingww-bit@users.noreply.github.com"
+          python3 streak.py
+          STAMP=$(TZ=Asia/Shanghai date '+%Y-%m-%d %H:%M:%S %Z')
+          git add streak.md badge.json README.md
+          git commit -m "daily check-in: $STAMP" || echo "no changes"
+          git push
+          DESC=$(python3 -c "import json;d=json.load(open('badge.json'));print(json.dumps({'description':'Daily GitHub check-in · 自动打卡 · 当前连续 '+d['message']}))")
+          gh api -X PATCH repos/luisdingww-bit/daily-streak --input - <<< "$DESC"
