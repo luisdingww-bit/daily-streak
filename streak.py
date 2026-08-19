@@ -84,3 +84,26 @@ with open("README.md", "w", encoding="utf-8") as f:
     f.write(readme)
 
 print(f"streak={streak} cumulative={cumulative}")
+
+# ---------- 统计徽章（shields.io endpoint 格式）----------
+import subprocess as _sp
+def _gh(path):
+    return json.loads(_sp.check_output(["gh", "api", path]))
+try:
+    _u = _gh("users/luisdingww-bit")
+    followers = _u.get("followers", 0)
+    public_repos = _u.get("public_repos", 0)
+    _repos = _gh("users/luisdingww-bit/repos?per_page=100")
+    total_stars = sum(r.get("stargazers_count", 0) for r in _repos)
+except Exception as e:
+    followers = public_repos = total_stars = 0
+    print("stats err:", e)
+
+def _shield(label, message, color):
+    return {"schemaVersion": 1, "label": label, "message": str(message), "color": color}
+
+json.dump(_shield("Total Stars", total_stars, "e3b341"), open("s_stars.json", "w"), ensure_ascii=False)
+json.dump(_shield("Followers", followers, "1f6feb"), open("s_followers.json", "w"), ensure_ascii=False)
+json.dump(_shield("Public Repos", public_repos, "8957e5"), open("s_repos.json", "w"), ensure_ascii=False)
+json.dump(_shield("Streak Days", streak, "ff4757"), open("s_streak.json", "w"), ensure_ascii=False)
+
